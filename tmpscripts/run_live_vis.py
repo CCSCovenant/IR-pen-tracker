@@ -5,10 +5,10 @@ from typing import Optional
 import cv2
 import numpy as np
 
-from kinect_pen.algo.body_tracker import MediaPipePoseBodyTracker, MediaPipePoseConfig
-from kinect_pen.algo.pen_tracker import ColorPenTracker, ColorPenConfig
-from kinect_pen.core.types import Frame
-from kinect_pen.io.kinect_camera import KinectCamera
+from ir_pen_tracker.algo.body_tracker import MediaPipePoseBodyTracker, MediaPipePoseConfig
+from ir_pen_tracker.algo.pen_tracker import ColorPenTracker, ColorPenConfig
+from ir_pen_tracker.core.types import Frame
+from ir_pen_tracker.io.kinect_camera import KinectCamera
 
 
 class OpenCVCamera:

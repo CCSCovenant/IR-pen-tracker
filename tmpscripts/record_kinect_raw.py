@@ -4,7 +4,7 @@ import time
 import cv2
 from datetime import datetime
 
-from kinect_pen.io.kinect_camera import KinectCamera
+from ir_pen_tracker.io.kinect_camera import KinectCamera
 
 def main():
     out_root = os.path.join(os.getcwd(), "data", "raw_" + datetime.now().strftime("%Y%m%d_%H%M%S"))
