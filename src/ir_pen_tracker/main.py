@@ -13,11 +13,11 @@ project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from kinect_pen.io.kinect_camera import KinectCamera
-from kinect_pen.algo.pen_tracker import IRPenTracker, IRPenConfig
-from kinect_pen.algo.calibration import DeskCalibration
-from kinect_pen.vis.ortho_vis import OrthoVisualizer
-from kinect_pen.core.config_loader import load_config
+from ir_pen_tracker.io.kinect_camera import KinectCamera
+from ir_pen_tracker.algo.pen_tracker import IRPenTracker, IRPenConfig
+from ir_pen_tracker.algo.calibration import DeskCalibration
+from ir_pen_tracker.vis.ortho_vis import OrthoVisualizer
+from ir_pen_tracker.core.config_loader import load_config
 
 class KinectPenApp:
     def __init__(self):
@@ -146,7 +146,7 @@ class KinectPenApp:
         print("Initializing Camera...")
         try:
             if self.camera_type == "realsense":
-                from kinect_pen.io.realsense_camera import RealSenseCamera
+                from ir_pen_tracker.io.realsense_camera import RealSenseCamera
                 rs_cfg = self.config.get("camera", {}).get("realsense", {})
                 use_max = bool(rs_cfg.get("use_max_resolution", True))
                 fps = int(rs_cfg.get("fps", 30))
