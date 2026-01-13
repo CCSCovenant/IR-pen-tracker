@@ -1,11 +1,12 @@
 import time
 import numpy as np
-import cv2
-from typing import Optional
+from typing import Any, Optional, cast
 import pyrealsense2 as rs
 
 from ..core.interfaces import ICamera
 from ..core.types import Frame
+
+rs = cast(Any, rs)
 
 class RealSenseCamera(ICamera):
     def __init__(self, depth_width=640, depth_height=480, color_width=640, color_height=480, fps=30, enable_ir=True, preset="high_accuracy", laser_power: Optional[float] = None, exposure: Optional[float] = None):
@@ -22,6 +23,10 @@ class RealSenseCamera(ICamera):
         self._preset = str(preset).lower()
         self._intrinsics: Optional[np.ndarray] = None
         self._color_intrinsics: Optional[np.ndarray] = None
+        self._rs_depth_intrinsics: Optional[rs.intrinsics] = None
+        self._rs_color_intrinsics: Optional[rs.intrinsics] = None
+        self._rs_ir_left_intrinsics: Optional[rs.intrinsics] = None
+        self._rs_ir_right_intrinsics: Optional[rs.intrinsics] = None
         self._color_dist_coeffs: Optional[np.ndarray] = None
         self._extrinsics_c2d: Optional[tuple] = None
         self._extrinsics_d2c: Optional[tuple] = None
@@ -45,7 +50,7 @@ class RealSenseCamera(ICamera):
         profile = self._pipe.start(self._cfg)
         dev = profile.get_device()
         depth_sensor = dev.first_depth_sensor()
-        depth_sensor.set_option(rs.option.laser_power,float(self._laser_power))
+        depth_sensor.set_option(rs.option.laser_power, float(cast(float, self._laser_power)))
         print("Laser Power Status:")
         print(depth_sensor.get_option(rs.option.laser_power))
         if self._exposure is not None:
@@ -62,6 +67,8 @@ class RealSenseCamera(ICamera):
         color_sp = pipe_profile.get_stream(rs.stream.color).as_video_stream_profile()
         d_intr = depth_sp.get_intrinsics()
         c_intr = color_sp.get_intrinsics()
+        self._rs_depth_intrinsics = d_intr
+        self._rs_color_intrinsics = c_intr
         self._intrinsics = np.array([float(d_intr.fx), float(d_intr.fy), float(d_intr.ppx), float(d_intr.ppy)], dtype=np.float32)
         self._color_intrinsics = np.array([float(c_intr.fx), float(c_intr.fy), float(c_intr.ppx), float(c_intr.ppy)], dtype=np.float32)
         self._color_dist_coeffs = np.array(list(c_intr.coeffs), dtype=np.float32)
@@ -80,6 +87,8 @@ class RealSenseCamera(ICamera):
             ir_right_sp = pipe_profile.get_stream(rs.stream.infrared, 2).as_video_stream_profile()
             intr_l = ir_left_sp.get_intrinsics()
             intr_r = ir_right_sp.get_intrinsics()
+            self._rs_ir_left_intrinsics = intr_l
+            self._rs_ir_right_intrinsics = intr_r
             self._ir_left_intrinsics = np.array([float(intr_l.fx), float(intr_l.fy), float(intr_l.ppx), float(intr_l.ppy)], dtype=np.float32)
             self._ir_right_intrinsics = np.array([float(intr_r.fx), float(intr_r.fy), float(intr_r.ppx), float(intr_r.ppy)], dtype=np.float32)
             ex_l2r = ir_left_sp.get_extrinsics_to(ir_right_sp)
@@ -118,6 +127,12 @@ class RealSenseCamera(ICamera):
                 "t": self._extrinsics_ir_r2l[1].tolist()
             } if self._extrinsics_ir_r2l else None
         }
+
+    def get_rs_color_intrinsics(self) -> rs.intrinsics:
+        return self._rs_color_intrinsics
+
+    def get_rs_ir_left_intrinsics(self) -> rs.intrinsics:
+        return self._rs_ir_left_intrinsics
 
     def read_frame(self) -> Optional[Frame]:
         if self._pipe is None:

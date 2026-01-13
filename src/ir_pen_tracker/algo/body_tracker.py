@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, cast
 
 import cv2
 import mediapipe as mp
@@ -156,7 +156,7 @@ class MediaPipePoseBodyTracker(IBodyTracker):
 
 
     def track(self, frame: Frame) -> Optional[Skeleton]:
-        landmarks = self.track_rgb(frame.color)
+        landmarks = self.track_rgb(cast(np.ndarray, frame.color))
         if landmarks is None:
             return None
 

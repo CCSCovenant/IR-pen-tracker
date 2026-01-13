@@ -1,10 +1,8 @@
 import time
 import numpy as np
-import cv2
 from typing import Optional
 import pyk4a
 from pyk4a import PyK4A, Config, ColorResolution, ImageFormat, FPS, DepthMode
-from pyk4a.transformation import color_image_to_depth_camera
 
 from ..core.interfaces import ICamera
 from ..core.types import Frame

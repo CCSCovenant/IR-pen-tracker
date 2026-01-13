@@ -180,8 +180,8 @@ class IRPenTrackerStereo(IBrushTracker):
                 self._kf_P = np.eye(6, dtype=np.float32) * 1.0
             self._kf_state = F @ self._kf_state
             self._kf_P = F @ self._kf_P @ F.T + Q
-            z = tip.astype(np.float32)
-            y = z - (H @ self._kf_state)
+            z_meas = tip.astype(np.float32)
+            y = z_meas - (H @ self._kf_state)
             S = H @ self._kf_P @ H.T + R
             K = self._kf_P @ H.T @ np.linalg.inv(S)
             self._kf_state = self._kf_state + (K @ y)

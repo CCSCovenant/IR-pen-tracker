@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, Tuple, List, Dict, Any
 from ..core.interfaces import IBrushTracker
 from ..core.types import Frame, BrushPoseVis
@@ -162,7 +162,7 @@ class IRPenTracker(IBrushTracker):
         self._last_tip_pos: Optional[np.ndarray] = None
 
     def track_debug(self, frame: Frame) -> Tuple[BrushPoseVis, Dict[str, Any]]:
-        debug_info = {
+        debug_info: Dict[str, Any] = {
             "mask_ir": None,
             "blobs_uv": [],
             "blobs_radius": [],
@@ -204,7 +204,7 @@ class IRPenTracker(IBrushTracker):
         # Line segment length
         seg_len = np.hypot(u2 - u1, v2 - v1)
         if seg_len < 1.0:
-             return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
+            return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
 
         # Direction vector in 2D
         du = (u2 - u1) / seg_len
@@ -226,7 +226,7 @@ class IRPenTracker(IBrushTracker):
         end_dist = seg_len - margin
         
         if start_dist >= end_dist:
-             return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
+            return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
              
         # Generate sample grid
         # We can iterate over bounding box of the line segment for simplicity, or rotate.
@@ -296,7 +296,7 @@ class IRPenTracker(IBrushTracker):
         # 4. RANSAC Fit
         line_res = _fit_line_ransac(pts_3d, self._cfg.ransac_threshold)
         if line_res is None:
-             return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
+            return BrushPoseVis(frame.timestamp, np.zeros(3), np.zeros(3), 0.0, False), debug_info
              
         line_pt, line_dir = line_res
         debug_info["fitted_line"] = (line_pt, line_dir)
@@ -319,8 +319,6 @@ class IRPenTracker(IBrushTracker):
         # Heuristic: Tip is "lower" in image (larger V) or closer to last tip
         tip_pos = p1_on_line
         tail_pos = p2_on_line
-        tip_uv = (u1, v1)
-        tail_uv = (u2, v2)
         
         if self._last_tip_pos is not None:
             d1 = np.linalg.norm(p1_on_line - self._last_tip_pos)
@@ -328,14 +326,10 @@ class IRPenTracker(IBrushTracker):
             if d2 < d1:
                 tip_pos = p2_on_line
                 tail_pos = p1_on_line
-                tip_uv = (u2, v2)
-                tail_uv = (u1, v1)
         else:
-             if v2 > v1:
+            if v2 > v1:
                 tip_pos = p2_on_line
                 tail_pos = p1_on_line
-                tip_uv = (u2, v2)
-                tail_uv = (u1, v1)
 
         self._last_tip_pos = tip_pos
         

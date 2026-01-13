@@ -7,7 +7,7 @@ class Frame:
     """Raw sensor data frame"""
     timestamp: float
     frame_id: int
-    color: np.ndarray          # HxWx3 BGR (Raw Color if using calibration)
+    color: Optional[np.ndarray]          # HxWx3 BGR (Raw Color if using calibration)
     depth: np.ndarray          # HxW uint16 (mm)
     intrinsics: np.ndarray     # [fx, fy, cx, cy] (For the active camera - usually depth for tracking)
     ir: Optional[np.ndarray] = None   # HxW uint16
@@ -19,7 +19,7 @@ class Frame:
     
     # Optional calibration data for advanced users (e.g. Color to Depth mapping)
     color_intrinsics: Optional[np.ndarray] = None # [fx, fy, cx, cy]
-    extrinsics_color_to_depth: Optional[np.ndarray] = None # 4x4 Transformation Matrix
+    extrinsics_color_to_depth: Optional[tuple[np.ndarray, np.ndarray]] = None # 4x4 Transformation Matrix
 
 @dataclass
 class BrushPoseVis:

@@ -1,7 +1,6 @@
 import json
 import os
 import cv2
-import numpy as np
 
 def load_config(config_path="config.json"):
     """
